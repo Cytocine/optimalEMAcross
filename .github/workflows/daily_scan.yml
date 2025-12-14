@@ -1,0 +1,35 @@
+name: Daily EMA Scanner
+
+on:
+  schedule:
+    # Runs at 21:00 UTC (approx 4:00 PM EST) every weekday
+    - cron: '0 21 * * 1-5'
+  workflow_dispatch: # Allows you to run it manually button click
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+
+    - name: Run Scanner Script
+      env:
+        # These pull from your Repository Secrets
+        DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        EMAIL_SENDER: ${{ secrets.EMAIL_SENDER }}
+        EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+        EMAIL_RECEIVER: ${{ secrets.EMAIL_RECEIVER }}
+        ADX_THRESHOLD: 25
+      run: |
+        python ema_scanner.py
